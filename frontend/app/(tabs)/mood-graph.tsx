@@ -1,13 +1,20 @@
-import React, { useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { View, Text, ScrollView, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'expo-router';
 import MoodGraph from '../../components/MoodGraph';
 import { fetchMoodData } from '../../store/journalSlice';
-import { MOOD_MAP, COLORS, MoodKey } from '../../utils/constants';
+import { MOOD_MAP, MoodKey } from '../../utils/constants';
+import { useTheme } from '../../hooks/useTheme';
 import type { AppDispatch, RootState } from '../../store/store';
 
 export default function MoodGraphScreen() {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const { id: userId } = useSelector((state: RootState) => state.user);
   const { moodData, entries } = useSelector((state: RootState) => state.journal);
 
@@ -55,7 +62,7 @@ export default function MoodGraphScreen() {
                     <View
                       style={[
                         styles.bar,
-                        { width: `${percentage}%`, backgroundColor: m?.graphColor || COLORS.primary },
+                        { width: `${percentage}%`, backgroundColor: m?.graphColor || colors.primary },
                       ]}
                     />
                   </View>
@@ -65,7 +72,7 @@ export default function MoodGraphScreen() {
             })
           ) : (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyEmoji}>📊</Text>
+              <Ionicons name="bar-chart-outline" size={44} color={colors.textMuted} style={{ marginBottom: 12 }} />
               <Text style={styles.emptyText}>Start journaling to see your mood distribution</Text>
             </View>
           )}
@@ -74,9 +81,13 @@ export default function MoodGraphScreen() {
         {/* Monthly Summary */}
         <View style={styles.summaryContainer}>
           <Text style={styles.sectionTitle}>Insights</Text>
-          <View style={styles.insightCard}>
+          <TouchableOpacity 
+            style={styles.insightCard}
+            onPress={() => router.push('/all-entries')}
+            activeOpacity={0.7}
+          >
             <Text style={styles.insightEmoji}>
-              {sortedMoods.length > 0 ? MOOD_MAP[sortedMoods[0][0] as MoodKey]?.emoji || '😊' : '📝'}
+              {sortedMoods.length > 0 ? MOOD_MAP[sortedMoods[0][0] as MoodKey]?.emoji || '😊' : <Ionicons name="bulb-outline" size={28} color={colors.primary} />}
             </Text>
             <View style={styles.insightText}>
               <Text style={styles.insightTitle}>
@@ -90,7 +101,8 @@ export default function MoodGraphScreen() {
                   : 'Add journal entries to see insights'}
               </Text>
             </View>
-          </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+          </TouchableOpacity>
         </View>
 
         <View style={{ height: 30 }} />
@@ -99,10 +111,10 @@ export default function MoodGraphScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -112,11 +124,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   distributionContainer: {
@@ -126,7 +138,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 14,
   },
   moodRow: {
@@ -145,13 +157,13 @@ const styles = StyleSheet.create({
   },
   moodLabel: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
   },
   barContainer: {
     flex: 1,
     height: 8,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 4,
     marginHorizontal: 10,
     overflow: 'hidden',
@@ -163,25 +175,21 @@ const styles = StyleSheet.create({
   moodCount: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     width: 40,
     textAlign: 'right',
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 30,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  emptyEmoji: {
-    fontSize: 40,
-    marginBottom: 10,
+    borderColor: colors.border,
   },
   emptyText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   summaryContainer: {
     paddingHorizontal: 16,
@@ -189,11 +197,11 @@ const styles = StyleSheet.create({
   insightCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   insightEmoji: {
     fontSize: 36,
@@ -205,11 +213,11 @@ const styles = StyleSheet.create({
   insightTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   insightDesc: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
 });

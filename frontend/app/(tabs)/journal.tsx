@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { COLORS, MoodKey } from '../../utils/constants';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { MoodKey } from '../../utils/constants';
 import {
   View,
   Text,
@@ -20,10 +20,14 @@ import StreakCounter from '../../components/StreakCounter';
 import { saveEntry, fetchEntryByDate, fetchEntries, setSelectedDate } from '../../store/journalSlice';
 import { fetchUser } from '../../store/userSlice';
 import type { AppDispatch, RootState } from '../../store/store';
+import { useTheme } from '../../hooks/useTheme';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function JournalScreen() {
   const dispatch = useDispatch<AppDispatch>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const { id: userId, name, streakCount, entryCount } = useSelector((state: RootState) => state.user);
   const { selectedDate, currentEntry, entries, saving } = useSelector((state: RootState) => state.journal);
 
@@ -156,10 +160,10 @@ export default function JournalScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS?.background || '#0F0F1A',
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -175,11 +179,11 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 26,
     fontWeight: '800',
-    color: COLORS?.text || '#FFFFFF',
+    color: colors.text,
   },
   dateText: {
     fontSize: 14,
-    color: COLORS?.textSecondary || '#8B8BA7',
+    color: colors.textSecondary,
     marginTop: 4,
   },
   section: {
@@ -189,13 +193,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   saveBtn: {
-    backgroundColor: COLORS?.primary || '#6C5CE7',
+    backgroundColor: colors.primary,
     borderRadius: 18,
     padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
-    shadowColor: COLORS?.primary || '#6C5CE7',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

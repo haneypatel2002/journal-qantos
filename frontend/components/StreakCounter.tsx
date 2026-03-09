@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../utils/constants';
+import { useTheme } from '../hooks/useTheme';
 import { Ionicons } from '@expo/vector-icons';
 
 interface StreakCounterProps {
@@ -9,18 +9,21 @@ interface StreakCounterProps {
 }
 
 export default function StreakCounter({ streak, totalEntries }: StreakCounterProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View style={styles.container}>
       <View style={styles.statCard}>
-        <View style={[styles.iconContainer, { backgroundColor: COLORS.warning + '20' }]}>
-          <Ionicons name="flame" size={22} color={COLORS.warning} />
+        <View style={[styles.iconContainer, { backgroundColor: colors.warning + '20' }]}>
+          <Ionicons name="flame" size={22} color={colors.warning} />
         </View>
         <Text style={styles.statValue}>{streak}</Text>
         <Text style={styles.statLabel}>Day Streak</Text>
       </View>
       <View style={styles.statCard}>
-        <View style={[styles.iconContainer, { backgroundColor: COLORS.primary + '20' }]}>
-          <Ionicons name="book" size={22} color={COLORS.primary} />
+        <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
+          <Ionicons name="book" size={22} color={colors.primary} />
         </View>
         <Text style={styles.statValue}>{totalEntries}</Text>
         <Text style={styles.statLabel}>Entries</Text>
@@ -29,7 +32,7 @@ export default function StreakCounter({ streak, totalEntries }: StreakCounterPro
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     gap: 12,
@@ -38,12 +41,12 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 20,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     // Add subtle shadow for depth
     elevation: 2,
     shadowColor: '#000',
@@ -62,11 +65,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 28,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
   },
   statLabel: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
     fontWeight: '600',
   },

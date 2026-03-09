@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,13 +12,17 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
 import { createUser, loadStoredUser } from '../store/userSlice';
-import { COLORS } from '../utils/constants';
+import { useTheme } from '../hooks/useTheme';
 import type { AppDispatch, RootState } from '../store/store';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function OnboardingScreen() {
   const [name, setName] = useState('');
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const { loading, isOnboarded, error } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
@@ -43,7 +47,8 @@ export default function OnboardingScreen() {
     >
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.logo}>📓</Text>
+          {/* <Text style={styles.logo}>📓</Text> */}
+          <Ionicons name="book-sharp" size={55} color={colors.primary} style={styles.journalIcon} />
           <Text style={styles.appName}>Journal Qantos</Text>
           <Text style={styles.tagline}>Your AI-Powered Journaling Companion</Text>
         </View>
@@ -53,7 +58,7 @@ export default function OnboardingScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter your name"
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
@@ -76,15 +81,21 @@ export default function OnboardingScreen() {
 
         <View style={styles.features}>
           <View style={styles.featureItem}>
-            <Text style={styles.featureEmoji}>📝</Text>
+            <View style={styles.iconContainer}>
+              <Ionicons name="pencil-outline" size={20} color={colors.primary} />
+            </View>
             <Text style={styles.featureText}>Daily Journal</Text>
           </View>
           <View style={styles.featureItem}>
-            <Text style={styles.featureEmoji}>📊</Text>
+            <View style={styles.iconContainer}>
+              <Ionicons name="bar-chart-outline" size={20} color={colors.primary} />
+            </View>
             <Text style={styles.featureText}>Mood Tracking</Text>
           </View>
           <View style={styles.featureItem}>
-            <Text style={styles.featureEmoji}>🎯</Text>
+            <View style={styles.iconContainer}>
+              <Ionicons name="trophy-outline" size={20} color={colors.primary} />
+            </View>
             <Text style={styles.featureText}>21-Day Challenges</Text>
           </View>
         </View>
@@ -93,10 +104,10 @@ export default function OnboardingScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
@@ -114,12 +125,12 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 32,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
     letterSpacing: -0.5,
   },
   tagline: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 8,
   },
   form: {
@@ -128,29 +139,29 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 18,
     fontSize: 17,
-    color: COLORS.text,
+    color: colors.text,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     marginBottom: 16,
     textAlign: 'center',
   },
   errorText: {
-    color: COLORS.error,
+    color: colors.error,
     fontSize: 13,
     textAlign: 'center',
     marginBottom: 8,
   },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 16,
     padding: 18,
     alignItems: 'center',
@@ -165,19 +176,33 @@ const styles = StyleSheet.create({
   },
   features: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 24,
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 40,
   },
   featureItem: {
     alignItems: 'center',
+    flex: 1,
   },
-  featureEmoji: {
-    fontSize: 24,
-    marginBottom: 6,
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   featureText: {
-    fontSize: 11,
-    color: COLORS.textMuted,
+    fontSize: 12,
+    color: colors.textSecondary,
     fontWeight: '600',
+    textAlign: 'center',
   },
+  journalIcon:{
+    marginBottom: 16, 
+    marginTop: 16 
+  }
 });

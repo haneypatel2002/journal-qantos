@@ -22,7 +22,7 @@ export const CHALLENGE_CATEGORIES = [
   { key: 'productivity', label: 'Productivity', emoji: '⚡', icon: 'flash', color: '#FDAA48', gradient: ['#FCD34D', '#FDAA48'] },
 ] as const;
 
-export const COLORS = {
+export const DARK_COLORS = {
   primary: '#6C5CE7',
   primaryLight: '#A29BFE',
   primaryDark: '#5A4BD1',
@@ -40,6 +40,27 @@ export const COLORS = {
   error: '#FF5252',
   border: '#2D2D4A',
 };
+
+export const LIGHT_COLORS = {
+  primary: '#6C5CE7',
+  primaryLight: '#A29BFE',
+  primaryDark: '#5A4BD1',
+  secondary: '#00BFA5',
+  background: '#F8F9FA',
+  surface: '#FFFFFF',
+  surfaceLight: '#F1F3F5',
+  card: '#FFFFFF',
+  text: '#1A1A2E',
+  textSecondary: '#4A4A6A',
+  textMuted: '#8B8BA7',
+  accent: '#FF6B9D',
+  success: '#00C853',
+  warning: '#FFD600',
+  error: '#D32F2F',
+  border: '#E9ECEF',
+};
+
+export const COLORS = DARK_COLORS;
 
 export const FONTS = {
   regular: 'SpaceMono',

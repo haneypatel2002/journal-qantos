@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
-import { COLORS } from '../utils/constants';
+import { useTheme } from '../hooks/useTheme';
 
 interface DayProgress {
   day: number;
@@ -13,12 +13,15 @@ interface ChallengeProgressGraphProps {
   completedDays: number;
 }
 
-const CELL_SIZE = 30;
-const CELL_GAP = 4;
-const COLS = 7;
+const CELL_SIZE = 22;
+const CELL_GAP = 7;
+const COLS = 8;
 const ROWS = 3;
 
 export default function ChallengeProgressGraph({ progress, completedDays }: ChallengeProgressGraphProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const svgWidth = COLS * (CELL_SIZE + CELL_GAP);
   const svgHeight = ROWS * (CELL_SIZE + CELL_GAP);
 
@@ -44,7 +47,7 @@ export default function ChallengeProgressGraph({ progress, completedDays }: Chal
                 height={CELL_SIZE}
                 rx={6}
                 ry={6}
-                fill={day.completed ? COLORS.success : COLORS.surface}
+                fill={day.completed ? colors.success : colors.surface}
                 opacity={day.completed ? 0.9 : 0.4}
               />
             );
@@ -60,7 +63,7 @@ export default function ChallengeProgressGraph({ progress, completedDays }: Chal
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     marginBottom: 20,
@@ -74,41 +77,41 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   count: {
     fontSize: 20,
     fontWeight: '800',
-    color: COLORS.success,
+    color: colors.success,
   },
   countLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   graphContainer: {
-    backgroundColor: COLORS.card,
+    backgroundColor: colors.card || colors.surface,
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     marginBottom: 12,
   },
   progressBarBg: {
     height: 8,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: COLORS.success,
+    backgroundColor: colors.success,
     borderRadius: 4,
   },
   percentage: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 8,
     fontWeight: '600',

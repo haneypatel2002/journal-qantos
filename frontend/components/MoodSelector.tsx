@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { MOODS, MoodKey, COLORS } from '../utils/constants';
+import { MOODS, MoodKey } from '../utils/constants';
+import { useTheme } from '../hooks/useTheme';
 
 interface MoodSelectorProps {
   selectedMood: MoodKey | null;
   onMoodSelect: (mood: MoodKey) => void;
 }
 export default function MoodSelector({ selectedMood, onMoodSelect }: MoodSelectorProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>How are you feeling?</Text>
@@ -18,8 +22,8 @@ export default function MoodSelector({ selectedMood, onMoodSelect }: MoodSelecto
               key={mood.key}
               style={[
                 styles.moodItem,
-                { borderColor: mood.color },
-                isSelected && { backgroundColor: mood.color + '30', borderColor: mood.color },
+                { borderColor: isSelected ? mood.color : colors.border },
+                isSelected && { backgroundColor: mood.color + '30' },
               ]}
               onPress={() => onMoodSelect(mood.key)}
               activeOpacity={0.7}
@@ -36,7 +40,7 @@ export default function MoodSelector({ selectedMood, onMoodSelect }: MoodSelecto
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     marginBottom: 16,
@@ -44,7 +48,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   moodGrid: {
@@ -57,9 +61,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderRadius: 16,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1.5,
-    borderColor: COLORS.border,
   },
   emoji: {
     fontSize: 28,
@@ -68,6 +71,6 @@ const styles = StyleSheet.create({
   moodLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 });

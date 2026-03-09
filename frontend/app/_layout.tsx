@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { Provider, useSelector } from 'react-redux';
 import { store, RootState } from '../store/store';
+import { useTheme } from '../hooks/useTheme';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -14,6 +15,8 @@ function RootLayoutNav() {
   const isOnboarded = useSelector((state: RootState) => state.user.isOnboarded);
   const router = useRouter();
   const segments = useSegments();
+
+  const { colors, isDark } = useTheme();
 
   useEffect(() => {
     if (isOnboarded) {
@@ -26,7 +29,10 @@ function RootLayoutNav() {
 
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor="#0F0F1A" />
+      <StatusBar 
+        barStyle={isDark ? "light-content" : "dark-content"} 
+        backgroundColor={colors.background} 
+      />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />

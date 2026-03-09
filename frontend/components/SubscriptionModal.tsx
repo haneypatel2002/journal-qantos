@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
-import { COLORS } from '../utils/constants';
+import { useTheme } from '../hooks/useTheme';
 
 interface SubscriptionModalProps {
   visible: boolean;
@@ -19,6 +19,9 @@ const PREMIUM_FEATURES = [
 ];
 
 export default function SubscriptionModal({ visible, onClose }: SubscriptionModalProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.overlay}>
@@ -61,14 +64,14 @@ export default function SubscriptionModal({ visible, onClose }: SubscriptionModa
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'flex-end',
   },
   modal: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 24,
@@ -82,7 +85,7 @@ const styles = StyleSheet.create({
   },
   closeBtnText: {
     fontSize: 22,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
   },
   crown: {
@@ -93,12 +96,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 6,
     marginBottom: 20,
@@ -111,7 +114,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   featureEmoji: {
     fontSize: 24,
@@ -123,11 +126,11 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   featureDesc: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   pricingContainer: {
@@ -142,15 +145,15 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 36,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
   },
   pricePeriod: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginLeft: 4,
   },
   subscribeBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 48,
     paddingVertical: 16,
     borderRadius: 16,
@@ -164,7 +167,7 @@ const styles = StyleSheet.create({
   },
   trialText: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     marginTop: 10,
   },
 });

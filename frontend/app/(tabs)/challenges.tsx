@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,12 +13,15 @@ import { useRouter } from 'expo-router';
 import ChallengeCard from '../../components/ChallengeCard';
 import ChallengeProgressGraph from '../../components/ChallengeProgressGraph';
 import { fetchSuggestions, startChallenge, fetchChallenges } from '../../store/challengeSlice';
-import { COLORS } from '../../utils/constants';
+import { useTheme } from '../../hooks/useTheme';
 import type { AppDispatch, RootState } from '../../store/store';
 
 export default function ChallengesScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const { id: userId } = useSelector((state: RootState) => state.user);
   const { suggestions, activeChallenge, loading } = useSelector((state: RootState) => state.challenge);
 
@@ -75,19 +78,19 @@ export default function ChallengesScreen() {
         {activeChallenge && (
           <View style={styles.activeSection}>
             <Text style={styles.sectionTitle}>Active Challenge</Text>
-            <ChallengeCard
-              category={activeChallenge.category}
-              title={activeChallenge.title}
-              description={activeChallenge.description}
-              onPress={() => router.push(`/challenge/${activeChallenge._id}`)}
-            />
             <ChallengeProgressGraph
               progress={activeChallenge.progress}
               completedDays={activeChallenge.completedDays}
             />
+            <ChallengeCard
+              category={activeChallenge.category}
+              title={activeChallenge.title}
+              description={activeChallenge.description}
+              isStarted={true}
+              onPress={() => router.push(`/challenge/${activeChallenge._id}`)}
+            />
           </View>
         )}
-
         {/* Suggestions */}
         <View style={styles.suggestionsSection}>
           <Text style={styles.sectionTitle}>
@@ -96,7 +99,7 @@ export default function ChallengesScreen() {
           <Text style={styles.sectionDesc}>Based on your recent mood patterns</Text>
 
           {loading ? (
-            <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
+            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
           ) : suggestions.length > 0 ? (
             suggestions.map((s, i) => (
               <ChallengeCard
@@ -124,10 +127,10 @@ export default function ChallengesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -137,11 +140,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   activeSection: {
@@ -150,7 +153,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     paddingHorizontal: 16,
     marginBottom: 12,
   },
@@ -159,7 +162,7 @@ const styles = StyleSheet.create({
   },
   sectionDesc: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     paddingHorizontal: 16,
     marginBottom: 16,
   },
@@ -167,10 +170,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 40,
     marginHorizontal: 16,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   emptyEmoji: {
     fontSize: 40,
@@ -178,7 +181,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 20,
   },

@@ -10,6 +10,7 @@ interface UserState {
   entryCount: number;
   moodDistribution: Array<{ _id: string; count: number }>;
   isOnboarded: boolean;
+  theme: 'dark' | 'light';
   loading: boolean;
   error: string | null;
 }
@@ -22,6 +23,7 @@ const initialState: UserState = {
   entryCount: 0,
   moodDistribution: [],
   isOnboarded: false,
+  theme: 'dark',
   loading: false,
   error: null,
 };
@@ -58,10 +60,13 @@ export const loadStoredUser = createAsyncThunk(
     try {
       const userId = await AsyncStorage.getItem('userId');
       const userName = await AsyncStorage.getItem('userName');
-      if (userId && userName) {
-        return { id: userId, name: userName };
-      }
-      return null;
+      const theme = await AsyncStorage.getItem('theme') as 'dark' | 'light' | null;
+      
+      return { 
+        id: userId, 
+        name: userName, 
+        theme: theme || 'dark' 
+      };
     } catch (error: any) {
       return rejectWithValue('Failed to load stored user');
     }
@@ -108,6 +113,10 @@ const userSlice = createSlice({
       AsyncStorage.removeItem('userId');
       AsyncStorage.removeItem('userName');
     },
+    toggleTheme: (state) => {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      AsyncStorage.setItem('theme', state.theme);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -136,11 +145,12 @@ const userSlice = createSlice({
         state.isOnboarded = true;
       })
       .addCase(loadStoredUser.fulfilled, (state, action) => {
-        if (action.payload) {
+        if (action.payload.id && action.payload.name) {
           state.id = action.payload.id;
-          state.name = action.payload.name;
+          state.name = action.payload.name || '';
           state.isOnboarded = true;
         }
+        state.theme = (action.payload.theme as 'dark' | 'light') || 'dark';
       })
       .addCase(updateUser.pending, (state) => {
         state.loading = true;
@@ -157,5 +167,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { clearUser } = userSlice.actions;
+export const { clearUser, toggleTheme } = userSlice.actions;
 export default userSlice.reducer;

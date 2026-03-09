@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
-import { MOOD_MAP, COLORS, MoodKey } from '../utils/constants';
+import { MOOD_MAP, MoodKey } from '../utils/constants';
+import { useTheme } from '../hooks/useTheme';
 
 const { width } = Dimensions.get('window');
 const CELL_SIZE = 14;
@@ -16,12 +17,6 @@ interface MoodDataPoint {
 
 interface MoodGraphProps {
   data: MoodDataPoint[];
-}
-
-function getMoodColor(mood: string | undefined): string {
-  if (!mood) return COLORS.surface;
-  const m = MOOD_MAP[mood as MoodKey];
-  return m ? m.graphColor : COLORS.surface;
 }
 
 function getWeeksData(data: MoodDataPoint[]): (MoodDataPoint | null)[][] {
@@ -61,10 +56,19 @@ function getWeeksData(data: MoodDataPoint[]): (MoodDataPoint | null)[][] {
 }
 
 export default function MoodGraph({ data }: MoodGraphProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const weeks = getWeeksData(data);
   const svgWidth = weeks.length * (CELL_SIZE + CELL_GAP) + 30;
   const svgHeight = DAYS_IN_WEEK * (CELL_SIZE + CELL_GAP) + 20;
   const dayLabels = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
+
+  const getMoodColor = (mood: string | undefined): string => {
+    if (!mood) return colors.surface;
+    const m = MOOD_MAP[mood as MoodKey];
+    return m ? m.graphColor : colors.surface;
+  };
 
   return (
     <View style={styles.container}>
@@ -79,7 +83,7 @@ export default function MoodGraph({ data }: MoodGraphProps) {
                 x={0}
                 y={i * (CELL_SIZE + CELL_GAP) + CELL_SIZE + 10}
                 fontSize={9}
-                fill={COLORS.textMuted}
+                fill={colors.textMuted}
               >
                 {label}
               </SvgText>
@@ -97,7 +101,7 @@ export default function MoodGraph({ data }: MoodGraphProps) {
                 height={CELL_SIZE}
                 rx={3}
                 ry={3}
-                fill={day ? getMoodColor(day.mood) : COLORS.surface}
+                fill={day ? getMoodColor(day.mood) : colors.surface}
                 opacity={day ? 0.9 : 0.3}
               />
             ))
@@ -118,7 +122,7 @@ export default function MoodGraph({ data }: MoodGraphProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     marginBottom: 20,
@@ -126,16 +130,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   graphContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   legend: {
     flexDirection: 'row',

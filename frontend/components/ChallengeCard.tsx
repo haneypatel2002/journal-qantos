@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { CHALLENGE_CATEGORIES, COLORS } from '../utils/constants';
+import { CHALLENGE_CATEGORIES } from '../utils/constants';
+import { useTheme } from '../hooks/useTheme';
 import { Ionicons } from '@expo/vector-icons';
 
 interface ChallengeCardProps {
@@ -8,12 +9,15 @@ interface ChallengeCardProps {
   title: string;
   description: string;
   priority?: string;
+  isStarted?: boolean;
   onPress: () => void;
 }
 
-export default function ChallengeCard({ category, title, description, priority, onPress }: ChallengeCardProps) {
+export default function ChallengeCard({ category, title, description, priority, isStarted, onPress }: ChallengeCardProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const cat = CHALLENGE_CATEGORIES.find((c) => c.key === category);
-  const bgColor = cat?.color || COLORS.primary;
+  const bgColor = cat?.color || colors.primary;
 
   return (
     <TouchableOpacity
@@ -38,24 +42,24 @@ export default function ChallengeCard({ category, title, description, priority, 
       <View style={styles.footer}>
         <Text style={styles.duration}>21 days</Text>
         <View style={styles.startBadge}>
-          <Text style={styles.startText}>Start  </Text>
-          <Ionicons name="arrow-forward-circle" size={20} color={COLORS.primary} />
+          <Text style={styles.startText}>{isStarted ? 'Continue' : 'Start'} </Text>
+          <Ionicons name="arrow-forward-circle" size={20} color={colors.primary} />
         </View>
       </View>
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   card: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 18,
     marginHorizontal: 16,
     marginBottom: 12,
     borderLeftWidth: 4,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   header: {
     flexDirection: 'row',
@@ -70,20 +74,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
-  emoji: {
-    fontSize: 32,
-    marginRight: 12,
-  },
   headerText: {
     flex: 1,
   },
   title: {
     fontSize: 17,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   priorityBadge: {
-    backgroundColor: COLORS.accent + '30',
+    backgroundColor: colors.accent + '30',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -93,11 +93,11 @@ const styles = StyleSheet.create({
   priorityText: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.accent,
+    color: colors.accent,
   },
   description: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 19,
     marginBottom: 12,
   },
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   duration: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontWeight: '600',
   },
   startBadge: {
@@ -118,6 +118,6 @@ const styles = StyleSheet.create({
   startText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
 });

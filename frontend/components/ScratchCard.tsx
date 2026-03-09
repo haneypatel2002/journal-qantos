@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, TextInput } from 'react-native';
-import { COLORS } from '../utils/constants';
+import { useTheme } from '../hooks/useTheme';
 import { Ionicons } from '@expo/vector-icons';
 
 interface ScratchCardProps {
@@ -22,6 +22,8 @@ export default function ScratchCard({
   onScratch,
   onComplete,
 }: ScratchCardProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [isRevealed, setIsRevealed] = useState(scratched);
   const [note, setNote] = useState('');
 
@@ -34,7 +36,7 @@ export default function ScratchCard({
   if (!unlocked) {
     return (
       <View style={[styles.card, styles.locked]}>
-        <Ionicons name="lock-closed" size={20} color={COLORS.textMuted} style={styles.lockIcon} />
+        <Ionicons name="lock-closed" size={20} color={colors.textMuted} style={styles.lockIcon} />
         <Text style={styles.dayLabel}>Day {day}</Text>
       </View>
     );
@@ -63,7 +65,7 @@ export default function ScratchCard({
         <TextInput
           style={styles.noteInput}
           placeholder="How did it go? (Optional reflection)"
-          placeholderTextColor={COLORS.textMuted}
+          placeholderTextColor={colors.textMuted}
           value={note}
           onChangeText={setNote}
           multiline
@@ -78,7 +80,7 @@ export default function ScratchCard({
       >
         <Text style={[styles.completeBtnText, completed && styles.completedBtnText]}>
           {completed ? (
-            <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
+            <Ionicons name="checkmark-circle" size={16} color={colors.success} />
           ) : null}
           {completed ? '  Done' : 'Mark Complete'}
         </Text>
@@ -87,32 +89,32 @@ export default function ScratchCard({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   card: {
     borderRadius: 16,
     padding: 16,
     marginBottom: 10,
     marginHorizontal: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     alignItems: 'center',
   },
   locked: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     opacity: 0.5,
     flexDirection: 'row',
     gap: 10,
   },
   scratchable: {
-    backgroundColor: COLORS.primaryDark,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primaryDark,
+    borderColor: colors.primary,
   },
   revealed: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
   },
   completedCard: {
-    borderColor: COLORS.success + '50',
-    backgroundColor: COLORS.success + '10',
+    borderColor: colors.success + '50',
+    backgroundColor: colors.success + '10',
   },
   lockIcon: {
     marginRight: 8,
@@ -123,17 +125,17 @@ const styles = StyleSheet.create({
   dayLabel: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   scratchHint: {
     fontSize: 12,
-    color: COLORS.primaryLight,
+    color: colors.primaryLight,
     marginTop: 4,
   },
   taskText: {
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 12,
@@ -141,18 +143,18 @@ const styles = StyleSheet.create({
   },
   noteInput: {
     width: '100%',
-    backgroundColor: COLORS.surfaceLight,
+    backgroundColor: colors.surfaceLight || colors.background,
     borderRadius: 12,
     padding: 12,
-    color: COLORS.text,
+    color: colors.text,
     fontSize: 14,
     minHeight: 60,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   completeBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 14,
@@ -160,8 +162,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   completedBtn: {
-    backgroundColor: COLORS.success + '15',
-    borderColor: COLORS.success + '30',
+    backgroundColor: colors.success + '15',
+    borderColor: colors.success + '30',
     borderWidth: 1,
   },
   completeBtnText: {
@@ -170,6 +172,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   completedBtnText: {
-    color: COLORS.success,
+    color: colors.success,
   },
 });
