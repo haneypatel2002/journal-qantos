@@ -68,6 +68,32 @@ export const loadStoredUser = createAsyncThunk(
   }
 );
 
+export const updateUser = createAsyncThunk(
+  'user/update',
+  async ({ id, name }: { id: string; name: string }, { rejectWithValue }) => {
+    try {
+      const response = await userAPI.update(id, { name });
+      await AsyncStorage.setItem('userName', response.data.name);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update user');
+    }
+  }
+);
+
+export const deleteUserAccount = createAsyncThunk(
+  'user/delete',
+  async (id: string, { dispatch, rejectWithValue }) => {
+    try {
+      await userAPI.delete(id);
+      dispatch(clearUser());
+      return true;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete account');
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -76,6 +102,9 @@ const userSlice = createSlice({
       state.id = null;
       state.name = '';
       state.isOnboarded = false;
+      state.streakCount = 0;
+      state.entryCount = 0;
+      state.moodDistribution = [];
       AsyncStorage.removeItem('userId');
       AsyncStorage.removeItem('userName');
     },
@@ -112,6 +141,18 @@ const userSlice = createSlice({
           state.name = action.payload.name;
           state.isOnboarded = true;
         }
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.name = action.payload.name;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

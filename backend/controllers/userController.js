@@ -80,4 +80,40 @@ const updateStreak = async (userId, date) => {
     }
 };
 
-module.exports = { createUser, getUser, updateStreak };
+// Update user profile
+const updateUser = async (req, res) => {
+    try {
+        const { name } = req.body;
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (name) user.name = name.trim();
+
+        await user.save();
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Delete user
+const deleteUser = async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Also delete journal entries
+        await JournalEntry.deleteMany({ userId: user._id });
+
+        res.json({ message: 'User and all data deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { createUser, getUser, updateStreak, updateUser, deleteUser };

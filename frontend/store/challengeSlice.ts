@@ -82,9 +82,9 @@ export const fetchChallenges = createAsyncThunk(
 
 export const completeDay = createAsyncThunk(
   'challenge/completeDay',
-  async ({ challengeId, day }: { challengeId: string; day: number }, { rejectWithValue }) => {
+  async ({ challengeId, day, note }: { challengeId: string; day: number; note?: string }, { rejectWithValue }) => {
     try {
-      const response = await challengeAPI.completeDay(challengeId, day);
+      const response = await challengeAPI.completeDay(challengeId, day, note);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to complete day');

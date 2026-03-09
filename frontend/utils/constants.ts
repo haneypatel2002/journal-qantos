@@ -1,24 +1,25 @@
 export const MOODS = [
-  { key: 'happy', label: 'Happy', emoji: '😊', color: '#FFD93D', graphColor: '#4CAF50' },
-  { key: 'calm', label: 'Calm', emoji: '😌', color: '#74C0FC', graphColor: '#2196F3' },
-  { key: 'neutral', label: 'Neutral', emoji: '😐', color: '#B8C4CE', graphColor: '#9E9E9E' },
-  { key: 'sad', label: 'Sad', emoji: '😢', color: '#A78BFA', graphColor: '#7C4DFF' },
-  { key: 'angry', label: 'Angry', emoji: '😡', color: '#FF6B6B', graphColor: '#F44336' },
-  { key: 'anxious', label: 'Anxious', emoji: '😰', color: '#FDAA48', graphColor: '#FF9800' },
+  { key: 'happy', label: 'Happy', emoji: '😊', icon: 'emoticon-happy-outline', color: '#FFD93D', graphColor: '#4CAF50' },
+  { key: 'calm', label: 'Calm', emoji: '😌', icon: 'leaf-outline', color: '#74C0FC', graphColor: '#2196F3' },
+  { key: 'neutral', label: 'Neutral', emoji: '😐', icon: 'emoticon-neutral-outline', color: '#B8C4CE', graphColor: '#9E9E9E' },
+  { key: 'sad', label: 'Sad', emoji: '😢', icon: 'emoticon-sad-outline', color: '#A78BFA', graphColor: '#7C4DFF' },
+  { key: 'angry', label: 'Angry', emoji: '😡', icon: 'emoticon-angry-outline', color: '#FF6B6B', graphColor: '#F44336' },
+  { key: 'anxious', label: 'Anxious', emoji: '😰', icon: 'emoticon-confused-outline', color: '#FDAA48', graphColor: '#FF9800' },
 ] as const;
 
 export type MoodKey = (typeof MOODS)[number]['key'];
 
-export const MOOD_MAP = Object.fromEntries(
-  MOODS.map((m) => [m.key, m])
-) as Record<MoodKey, (typeof MOODS)[number]>;
+export const MOOD_MAP = MOODS.reduce((acc, m) => {
+  acc[m.key] = m;
+  return acc;
+}, {} as Record<MoodKey, (typeof MOODS)[number]>);
 
 export const CHALLENGE_CATEGORIES = [
-  { key: 'feel_better', label: 'Feel Better', emoji: '💛', color: '#FFD93D', gradient: ['#FFE066', '#FFD93D'] },
-  { key: 'focus', label: 'Focus', emoji: '🎯', color: '#74C0FC', gradient: ['#89D4F5', '#74C0FC'] },
-  { key: 'self_improvement', label: 'Self Improvement', emoji: '🚀', color: '#A78BFA', gradient: ['#C4B5FD', '#A78BFA'] },
-  { key: 'meditation', label: 'Meditation', emoji: '🧘', color: '#6EE7B7', gradient: ['#86EFAC', '#6EE7B7'] },
-  { key: 'productivity', label: 'Productivity', emoji: '⚡', color: '#FDAA48', gradient: ['#FCD34D', '#FDAA48'] },
+  { key: 'feel_better', label: 'Feel Better', emoji: '💛', icon: 'heart', color: '#FFD93D', gradient: ['#FFE066', '#FFD93D'] },
+  { key: 'focus', label: 'Focus', emoji: '🎯', icon: 'disc', color: '#74C0FC', gradient: ['#89D4F5', '#74C0FC'] },
+  { key: 'self_improvement', label: 'Self Improvement', emoji: '🚀', icon: 'rocket', color: '#A78BFA', gradient: ['#C4B5FD', '#A78BFA'] },
+  { key: 'meditation', label: 'Meditation', emoji: '🧘', icon: 'leaf', color: '#6EE7B7', gradient: ['#86EFAC', '#6EE7B7'] },
+  { key: 'productivity', label: 'Productivity', emoji: '⚡', icon: 'flash', color: '#FDAA48', gradient: ['#FCD34D', '#FDAA48'] },
 ] as const;
 
 export const COLORS = {

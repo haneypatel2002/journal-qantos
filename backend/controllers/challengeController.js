@@ -273,6 +273,7 @@ const getChallenges = async (req, res) => {
 const completeDay = async (req, res) => {
     try {
         const { id, day } = req.params;
+        const { note } = req.body;
         const dayNum = parseInt(day);
 
         const challenge = await Challenge.findById(id);
@@ -286,10 +287,10 @@ const completeDay = async (req, res) => {
         }
 
         // Check if day is unlockable (sequential or within date range)
-        const startDate = new Date(challenge.startDate);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const daysSinceStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+        const startDate = new Date(challenge.startDate + 'T00:00:00');
+        const todayAtMidnight = new Date();
+        todayAtMidnight.setHours(0, 0, 0, 0);
+        const daysSinceStart = Math.floor((todayAtMidnight - startDate) / (1000 * 60 * 60 * 24));
 
         if (dayNum > daysSinceStart + 1) {
             return res.status(400).json({ message: 'This day is not yet unlocked' });
@@ -310,6 +311,34 @@ const completeDay = async (req, res) => {
         }
 
         await challenge.save();
+
+        // Automatically create/update a Journal Entry for this challenge completion
+        try {
+            const todayStr = new Date().toISOString().split('T')[0];
+            let entry = await JournalEntry.findOne({ userId: challenge.userId, date: todayStr });
+            const taskName = challenge.progress[dayIndex].task;
+            const taskHeader = `\n🏆 Challenge: ${challenge.title} (Day ${dayNum})`;
+            const taskDetail = note ? `\nReflection: ${note}` : `\n✅ Completed Task: ${taskName}`;
+
+            if (entry) {
+                // Prevent duplicate task logging if they click multiple times (though button is disabled)
+                if (!entry.content.includes(taskName) || (note && !entry.content.includes(note))) {
+                    entry.content += `\n${taskHeader}${taskDetail}`;
+                    await entry.save();
+                }
+            } else {
+                // Create a new entry if none exists for today
+                await JournalEntry.create({
+                    userId: challenge.userId,
+                    date: todayStr,
+                    mood: 'happy', // If you finish a challenge, you're usually happy!
+                    content: `Completed a challenge milestone today!${taskHeader}${taskDetail}`,
+                });
+            }
+        } catch (journalErr) {
+            console.error('Failed to link challenge to journal:', journalErr);
+        }
+
         res.json(challenge);
     } catch (error) {
         res.status(500).json({ message: error.message });

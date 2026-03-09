@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { CHALLENGE_CATEGORIES, COLORS } from '../utils/constants';
+import { Ionicons } from '@expo/vector-icons';
 
 interface ChallengeCardProps {
   category: string;
@@ -21,7 +22,9 @@ export default function ChallengeCard({ category, title, description, priority, 
       activeOpacity={0.8}
     >
       <View style={styles.header}>
-        <Text style={styles.emoji}>{cat?.emoji || '✨'}</Text>
+        <View style={[styles.iconContainer, { backgroundColor: bgColor + '20' }]}>
+          <Ionicons name={cat?.icon as any || 'star'} size={24} color={bgColor} />
+        </View>
         <View style={styles.headerText}>
           <Text style={styles.title}>{title}</Text>
           {priority === 'high' && (
@@ -34,7 +37,10 @@ export default function ChallengeCard({ category, title, description, priority, 
       <Text style={styles.description}>{description}</Text>
       <View style={styles.footer}>
         <Text style={styles.duration}>21 days</Text>
-        <Text style={styles.startText}>Start → </Text>
+        <View style={styles.startBadge}>
+          <Text style={styles.startText}>Start  </Text>
+          <Ionicons name="arrow-forward-circle" size={20} color={COLORS.primary} />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -55,6 +61,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   emoji: {
     fontSize: 32,
@@ -96,6 +110,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textMuted,
     fontWeight: '600',
+  },
+  startBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   startText: {
     fontSize: 14,

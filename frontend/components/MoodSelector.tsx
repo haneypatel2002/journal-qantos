@@ -70,13 +70,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
-  demotile:{
-    width: '30%',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderRadius: 16,
-    backgroundColor: COLORS.surface,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-  }
 });

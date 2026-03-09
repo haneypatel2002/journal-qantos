@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { COLORS, MoodKey } from '../../utils/constants';
 import {
   View,
   Text,
@@ -8,6 +9,8 @@ import {
   Alert,
   ActivityIndicator,
   SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import CalendarSlider from '../../components/CalendarSlider';
@@ -16,8 +19,8 @@ import JournalEditor from '../../components/JournalEditor';
 import StreakCounter from '../../components/StreakCounter';
 import { saveEntry, fetchEntryByDate, fetchEntries, setSelectedDate } from '../../store/journalSlice';
 import { fetchUser } from '../../store/userSlice';
-import { COLORS, MoodKey } from '../../utils/constants';
 import type { AppDispatch, RootState } from '../../store/store';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function JournalScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -80,57 +83,75 @@ export default function JournalScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>Hello, {name} 👋</Text>
-            <Text style={styles.dateText}>{formattedDate}</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.greeting}>Hello, {name} 👋</Text>
+              <Text style={styles.dateText}>{formattedDate}</Text>
+            </View>
           </View>
-        </View>
 
-        {/* Stats */}
-        <StreakCounter streak={streakCount} totalEntries={entryCount} />
+          {/* Stats */}
+          <StreakCounter streak={streakCount} totalEntries={entryCount} />
 
-        {/* Calendar */}
-        <CalendarSlider
-          selectedDate={selectedDate}
-          onDateSelect={handleDateSelect}
-          entryDates={entryDates}
-        />
+          {/* Calendar */}
+          <CalendarSlider
+            selectedDate={selectedDate}
+            onDateSelect={handleDateSelect}
+            entryDates={entryDates}
+          />
 
-        {/* Mood */}
-        <View style={styles.section}>
-          <MoodSelector selectedMood={mood} onMoodSelect={setMood} />
-        </View>
+          {/* Mood */}
+          <View style={styles.section}>
+            <MoodSelector selectedMood={mood} onMoodSelect={setMood} />
+          </View>
 
-        {/* Editor */}
-        <JournalEditor
-          content={content}
-          onContentChange={setContent}
-          placeholder={isToday ? "How's your day going?" : `What happened on ${formattedDate}?`}
-        />
+          {/* Editor */}
+          <JournalEditor
+            content={content}
+            onContentChange={setContent}
+            placeholder={isToday ? "How's your day going?" : `What happened on ${formattedDate}?`}
+          />
 
-        {/* Save Button */}
-        <View style={styles.saveContainer}>
-          <TouchableOpacity
-            style={[styles.saveBtn, !mood && styles.saveBtnDisabled]}
-            onPress={handleSave}
-            disabled={saving || !mood}
-            activeOpacity={0.8}
-          >
-            {saving ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.saveBtnText}>
-                {currentEntry ? '💾 Update Entry' : '✨ Save Entry'}
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
+          {/* Save Button */}
+          <View style={styles.saveContainer}>
+            <TouchableOpacity
+              style={[styles.saveBtn, !mood && styles.saveBtnDisabled]}
+              onPress={handleSave}
+              disabled={saving || !mood}
+              activeOpacity={0.8}
+            >
+              {saving ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <View style={styles.btnContent}>
+                  <Ionicons 
+                    name={currentEntry ? "cloud-upload-outline" : "sparkles-outline"} 
+                    size={20} 
+                    color="#FFFFFF" 
+                    style={styles.btnIcon} 
+                  />
+                  <Text style={styles.saveBtnText}>
+                    {currentEntry ? 'Update Entry' : 'Save Entry'}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
 
-        <View style={{ height: 20 }} />
-      </ScrollView>
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -138,24 +159,27 @@ export default function JournalScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS?.background || '#0F0F1A',
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 40,
     paddingBottom: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  scrollContent: {
+    paddingBottom: 20,
+  },
   greeting: {
     fontSize: 26,
     fontWeight: '800',
-    color: COLORS.text,
+    color: COLORS?.text || '#FFFFFF',
   },
   dateText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: COLORS?.textSecondary || '#8B8BA7',
     marginTop: 4,
   },
   section: {
@@ -165,17 +189,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   saveBtn: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 16,
-    padding: 18,
+    backgroundColor: COLORS?.primary || '#6C5CE7',
+    borderRadius: 18,
+    padding: 16,
     alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: COLORS?.primary || '#6C5CE7',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   saveBtnDisabled: {
     opacity: 0.5,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  btnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnIcon: {
+    marginRight: 8,
   },
   saveBtnText: {
     color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '700',
+    letterSpacing: 0.5,
   },
 });

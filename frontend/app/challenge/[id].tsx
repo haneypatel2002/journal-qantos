@@ -12,8 +12,10 @@ import { useLocalSearchParams } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import ScratchCard from '../../components/ScratchCard';
 import ChallengeProgressGraph from '../../components/ChallengeProgressGraph';
+import { fetchUser } from '../../store/userSlice';
 import { completeDay, fetchChallenges } from '../../store/challengeSlice';
 import { CHALLENGE_CATEGORIES, COLORS } from '../../utils/constants';
+import { Ionicons } from '@expo/vector-icons';
 import type { AppDispatch, RootState } from '../../store/store';
 
 export default function ChallengeDetailScreen() {
@@ -41,15 +43,18 @@ export default function ChallengeDetailScreen() {
     );
   }
 
-  const startDate = new Date(challenge.startDate);
+  // Fix: Calculate days since start using consistent date formatting to avoid timezone offsets
+  const startDate = new Date(challenge.startDate + 'T00:00:00');
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
   const cat = CHALLENGE_CATEGORIES.find((c) => c.key === challenge.category);
 
-  const handleScratchAndComplete = (dayNum: number) => {
-    dispatch(completeDay({ challengeId: challenge._id, day: dayNum })).then((action: any) => {
+  const handleScratchAndComplete = (dayNum: number, note?: string) => {
+    dispatch(completeDay({ challengeId: challenge._id, day: dayNum, note })).then((action: any) => {
+      // Refresh user to update entry counts/streaks since a journal entry was created
+      dispatch(fetchUser(userId!));
       if (action.payload?.completedDays === 21) {
         Alert.alert('🎉 Congratulations!', 'You completed the 21-day challenge! Amazing work!');
       }
@@ -61,7 +66,9 @@ export default function ChallengeDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Challenge Header */}
         <View style={styles.challengeHeader}>
-          <Text style={styles.challengeEmoji}>{cat?.emoji || '✨'}</Text>
+          <View style={[styles.mainIconBg, { backgroundColor: (cat?.color || COLORS.primary) + '20' }]}>
+            <Ionicons name={cat?.icon as any || 'star'} size={40} color={cat?.color || COLORS.primary} />
+          </View>
           <Text style={styles.challengeTitle}>{challenge.title}</Text>
           <Text style={styles.challengeDesc}>{challenge.description}</Text>
           <View style={styles.statusBadge}>
@@ -122,6 +129,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 24,
     paddingHorizontal: 20,
+  },
+  mainIconBg: {
+    width: 80,
+    height: 80,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   challengeEmoji: {
     fontSize: 48,

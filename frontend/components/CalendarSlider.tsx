@@ -94,11 +94,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dayItem: {
-    width: DAY_WIDTH - 8,
+    width: DAY_WIDTH + 20,
     alignItems: 'center',
     paddingVertical: 12,
-    borderRadius: 20,
+    borderRadius: 18,
     backgroundColor: COLORS.surface,
+    
   },
   dayItemSelected: {
     backgroundColor: COLORS.primary,

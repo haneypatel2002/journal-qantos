@@ -16,6 +16,8 @@ const api = axios.create({
 export const userAPI = {
   create: (name: string) => api.post('/users', { name }),
   get: (id: string) => api.get(`/users/${id}`),
+  update: (id: string, data: { name?: string }) => api.patch(`/users/${id}`, data),
+  delete: (id: string) => api.delete(`/users/${id}`),
 };
 
 // Journal API
@@ -35,8 +37,8 @@ export const challengeAPI = {
   getSuggestions: (userId: string) => api.get(`/challenges/suggestions/${userId}`),
   start: (data: { userId: string; category: string }) => api.post('/challenges', data),
   getAll: (userId: string) => api.get(`/challenges/${userId}`),
-  completeDay: (challengeId: string, day: number) =>
-    api.put(`/challenges/${challengeId}/day/${day}`),
+  completeDay: (challengeId: string, day: number, note?: string) =>
+    api.put(`/challenges/${challengeId}/day/${day}`, { note }),
 };
 
 export default api;

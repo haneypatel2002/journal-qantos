@@ -7,22 +7,28 @@ import {
   StyleSheet,
   SafeAreaView,
   Alert,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import SubscriptionModal from '../../components/SubscriptionModal';
-import { fetchUser, clearUser } from '../../store/userSlice';
+import { fetchUser, clearUser, updateUser, deleteUserAccount } from '../../store/userSlice';
 import { MOOD_MAP, COLORS, MoodKey } from '../../utils/constants';
 import type { AppDispatch, RootState } from '../../store/store';
 import { useRouter } from 'expo-router';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function ProfileScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const { id: userId, name, streakCount, entryCount, moodDistribution } = useSelector(
+  const { id: userId, name, streakCount, entryCount, moodDistribution, loading } = useSelector(
     (state: RootState) => state.user
   );
   const { challenges } = useSelector((state: RootState) => state.challenge);
+  
   const [showSubscription, setShowSubscription] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(name || '');
 
   useEffect(() => {
     if (userId) {
@@ -30,7 +36,23 @@ export default function ProfileScreen() {
     }
   }, [userId]);
 
+  useEffect(() => {
+    setEditName(name);
+  }, [name]);
+
   const completedChallenges = challenges.filter((c) => c.status === 'completed').length;
+
+  const handleUpdate = async () => {
+    if (!editName.trim()) {
+      Alert.alert('Error', 'Name cannot be empty');
+      return;
+    }
+    if (userId) {
+      await dispatch(updateUser({ id: userId, name: editName.trim() }));
+      setIsEditing(false);
+      Alert.alert('Success', 'Profile updated successfully');
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert('Log Out', 'This will clear your local profile. Are you sure?', [
@@ -46,11 +68,37 @@ export default function ProfileScreen() {
     ]);
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'This will permanently delete your account and all your journal entries. This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete Permanently',
+          style: 'destructive',
+          onPress: async () => {
+            if (userId) {
+              await dispatch(deleteUserAccount(userId));
+              router.replace('/');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.title}>Profile</Text>
+          <TouchableOpacity 
+            style={styles.settingsIcon}
+            onPress={() => setIsEditing(!isEditing)}
+          >
+            <Ionicons name={isEditing ? "close" : "create-outline"} size={26} color={COLORS.primary} />
+          </TouchableOpacity>
         </View>
 
         {/* User Info */}
@@ -58,24 +106,52 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{name?.charAt(0)?.toUpperCase() || '?'}</Text>
           </View>
-          <Text style={styles.userName}>{name}</Text>
-          <Text style={styles.memberSince}>Journal Qantos Member</Text>
+          
+          {isEditing ? (
+            <View style={styles.editSection}>
+              <TextInput
+                style={styles.input}
+                value={editName}
+                onChangeText={setEditName}
+                placeholder="Enter your name"
+                placeholderTextColor={COLORS.textSecondary}
+              />
+              <TouchableOpacity style={styles.saveBtn} onPress={handleUpdate}>
+                {loading ? (
+                  <ActivityIndicator color="#FFF" size="small" />
+                ) : (
+                  <Text style={styles.saveBtnText}>Save Changes</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <Text style={styles.userName}>{name}</Text>
+              <Text style={styles.memberSince}>Journal Qantos Member</Text>
+            </>
+          )}
         </View>
 
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-            <Text style={styles.statEmoji}>🔥</Text>
+            <View style={[styles.iconContainer, { backgroundColor: COLORS.warning + '20' }]}>
+              <Ionicons name="flame" size={22} color={COLORS.warning} />
+            </View>
             <Text style={styles.statValue}>{streakCount}</Text>
             <Text style={styles.statLabel}>Streak</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statEmoji}>📝</Text>
+            <View style={[styles.iconContainer, { backgroundColor: COLORS.primary + '20' }]}>
+              <Ionicons name="book" size={22} color={COLORS.primary} />
+            </View>
             <Text style={styles.statValue}>{entryCount}</Text>
             <Text style={styles.statLabel}>Entries</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statEmoji}>🏆</Text>
+            <View style={[styles.iconContainer, { backgroundColor: COLORS.accent + '20' }]}>
+              <Ionicons name="trophy" size={22} color={COLORS.accent} />
+            </View>
             <Text style={styles.statValue}>{completedChallenges}</Text>
             <Text style={styles.statLabel}>Challenges</Text>
           </View>
@@ -104,17 +180,24 @@ export default function ProfileScreen() {
           onPress={() => setShowSubscription(true)}
           activeOpacity={0.8}
         >
-          <Text style={styles.premiumEmoji}>👑</Text>
+          <View style={styles.premiumIconContainer}>
+            <MaterialCommunityIcons name="crown" size={28} color={COLORS.warning} />
+          </View>
           <View style={styles.premiumText}>
             <Text style={styles.premiumTitle}>Upgrade to Premium</Text>
             <Text style={styles.premiumDesc}>Unlock AI insights, unlimited challenges & more</Text>
           </View>
-          <Text style={styles.premiumArrow}>→</Text>
+          <Ionicons name="chevron-forward" size={20} color={COLORS.primary} />
         </TouchableOpacity>
 
         {/* Logout */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <Text style={styles.logoutText}>Log Out</Text>
+        </TouchableOpacity>
+
+        {/* Delete Account */}
+        <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteAccount}>
+          <Text style={styles.deleteText}>Delete Account</Text>
         </TouchableOpacity>
 
         <View style={{ height: 30 }} />
@@ -137,11 +220,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 50,
     paddingBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontSize: 28,
     fontWeight: '800',
     color: COLORS.text,
+  },
+  settingsIcon: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   userCard: {
     alignItems: 'center',
@@ -177,6 +270,36 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: 4,
   },
+  editSection: {
+    width: '100%',
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  input: {
+    width: '100%',
+    backgroundColor: COLORS.background,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 16,
+    color: COLORS.text,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  saveBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    minWidth: 140,
+    alignItems: 'center',
+  },
+  saveBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
+  },
   statsGrid: {
     flexDirection: 'row',
     gap: 10,
@@ -187,14 +310,23 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: COLORS.surface,
-    borderRadius: 16,
-    paddingVertical: 18,
+    borderRadius: 20,
+    paddingVertical: 16,
     borderWidth: 1,
     borderColor: COLORS.border,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
-  statEmoji: {
-    fontSize: 22,
-    marginBottom: 6,
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   statValue: {
     fontSize: 24,
@@ -246,34 +378,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 16,
-    backgroundColor: COLORS.primaryDark + '30',
-    borderRadius: 16,
-    padding: 18,
+    backgroundColor: COLORS.surface,
+    borderRadius: 20,
+    padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.primary + '50',
+    borderColor: COLORS.primary + '30',
     marginBottom: 16,
+    elevation: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
   },
-  premiumEmoji: {
-    fontSize: 30,
+  premiumIconContainer: {
+    width: 54,
+    height: 54,
+    borderRadius: 16,
+    backgroundColor: COLORS.warning + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 14,
   },
   premiumText: {
     flex: 1,
   },
   premiumTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 17,
+    fontWeight: '800',
     color: COLORS.text,
   },
   premiumDesc: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
-  },
-  premiumArrow: {
-    fontSize: 20,
-    color: COLORS.primary,
-    fontWeight: '700',
+    lineHeight: 16,
   },
   logoutBtn: {
     marginHorizontal: 16,
@@ -282,10 +420,22 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.error + '40',
+    marginBottom: 12,
   },
   logoutText: {
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.error,
+  },
+  deleteBtn: {
+    marginHorizontal: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  deleteText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
+    textDecorationLine: 'underline',
   },
 });
