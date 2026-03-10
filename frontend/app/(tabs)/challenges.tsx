@@ -32,6 +32,11 @@ export default function ChallengesScreen() {
     }
   }, [userId]);
 
+  const filteredSuggestions = useMemo(() => {
+    if (!activeChallenge) return suggestions;
+    return suggestions.filter(s => s.category !== activeChallenge.category);
+  }, [suggestions, activeChallenge]);
+
   const handleStartChallenge = (category: string) => {
     if (!userId) return;
 
@@ -100,8 +105,8 @@ export default function ChallengesScreen() {
 
           {loading ? (
             <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
-          ) : suggestions.length > 0 ? (
-            suggestions.map((s, i) => (
+          ) : filteredSuggestions.length > 0 ? (
+            filteredSuggestions.map((s, i) => (
               <ChallengeCard
                 key={i}
                 category={s.category}

@@ -33,18 +33,32 @@ function RootLayoutNav() {
         barStyle={isDark ? "light-content" : "dark-content"} 
         backgroundColor={colors.background} 
       />
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack 
+        screenOptions={{ 
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.background }
+        }}
+      >
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="challenge/[id]"
           options={{
             headerShown: true,
-            headerStyle: { backgroundColor: '#0F0F1A' },
-            headerTintColor: '#FFFFFF',
-            headerTitle: 'Challenge',
+            headerStyle: { backgroundColor: colors.surface },
+            headerTintColor: colors.text,
+            headerShadowVisible: false,
+            headerTitle: 'Challenge Details',
+            headerTitleStyle: { fontWeight: '800' },
             presentation: 'card',
           }}
+        />
+        <Stack.Screen 
+          name="all-entries" 
+          options={{ 
+            headerShown: false,
+            presentation: 'modal'
+          }} 
         />
       </Stack>
     </>

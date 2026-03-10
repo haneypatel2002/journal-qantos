@@ -80,7 +80,7 @@ export default function MoodGraphScreen() {
 
         {/* Monthly Summary */}
         <View style={styles.summaryContainer}>
-          <Text style={styles.sectionTitle}>Insights</Text>
+          <Text style={styles.sectionTitle}>Journal History</Text>
           <TouchableOpacity 
             style={styles.insightCard}
             onPress={() => router.push('/all-entries')}

@@ -31,7 +31,6 @@ export default function JournalEditor({ content, onContentChange, placeholder }:
 const createStyles = (colors: any) => StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    flex: 1,
     marginBottom: 16,
   },
   editor: {

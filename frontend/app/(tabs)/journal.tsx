@@ -89,8 +89,8 @@ export default function JournalScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 20}
       >
         <ScrollView 
           showsVerticalScrollIndicator={false}
@@ -174,7 +174,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 120, // Increased to allow space when keyboard is open
   },
   greeting: {
     fontSize: 26,

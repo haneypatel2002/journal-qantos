@@ -13,8 +13,8 @@ interface ChallengeProgressGraphProps {
   completedDays: number;
 }
 
-const CELL_SIZE = 22;
-const CELL_GAP = 7;
+const CELL_SIZE = 21;
+const CELL_GAP = 5;
 const COLS = 8;
 const ROWS = 3;
 
@@ -48,7 +48,9 @@ export default function ChallengeProgressGraph({ progress, completedDays }: Chal
                 rx={6}
                 ry={6}
                 fill={day.completed ? colors.success : colors.surface}
-                opacity={day.completed ? 0.9 : 0.4}
+                stroke={colors.border}
+                strokeWidth={1}
+                opacity={day.completed ? 1 : 0.8}
               />
             );
           })}

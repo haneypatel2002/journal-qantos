@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
+  Share,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
@@ -79,6 +80,20 @@ export default function AllEntriesScreen() {
       year: 'numeric' 
     };
     return new Date(dateStr + 'T00:00:00').toLocaleDateString(undefined, options);
+  };
+
+  const handleShare = async (item: any) => {
+    try {
+      const mood = MOOD_MAP[item.mood as MoodKey];
+      const message = `✨ Journal Entry - ${formatDate(item.date)}\n\nMood: ${mood?.emoji} ${mood?.label || item.mood}\n\n"${item.content}"\n\nShared via Journal Qantos`;
+      
+      await Share.share({
+        message,
+        title: 'My Journal Entry',
+      });
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
   };
 
   const clearFilters = () => {
@@ -288,7 +303,14 @@ export default function AllEntriesScreen() {
                       {mood?.label || item.mood}
                     </Text>
                   </View>
+                  <View style={{ flex: 1 }} />
                   <Text style={styles.dateText}>{formatDate(item.date)}</Text>
+                  <TouchableOpacity 
+                    style={styles.shareBtn} 
+                    onPress={() => handleShare(item)}
+                  >
+                    <Ionicons name="share-outline" size={20} color={colors.textSecondary} />
+                  </TouchableOpacity>
                 </View>
                 
                 <Text style={styles.entryContent} numberOfLines={4}>
@@ -445,6 +467,12 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     fontWeight: '600',
+    marginRight: 10,
+  },
+  shareBtn: {
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: colors.background,
   },
   entryContent: {
     fontSize: 15,
