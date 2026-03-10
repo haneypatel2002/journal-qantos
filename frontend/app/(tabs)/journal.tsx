@@ -11,6 +11,8 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import CalendarSlider from '../../components/CalendarSlider';
@@ -29,7 +31,7 @@ export default function JournalScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const { id: userId, name, streakCount, entryCount } = useSelector((state: RootState) => state.user);
-  const { selectedDate, currentEntry, entries, saving } = useSelector((state: RootState) => state.journal);
+  const { selectedDate, currentEntry, entries, saving, loading } = useSelector((state: RootState) => state.journal);
 
   const [mood, setMood] = useState<MoodKey | null>(null);
   const [content, setContent] = useState('');
@@ -63,6 +65,8 @@ export default function JournalScreen() {
 
   const handleDateSelect = useCallback((date: string) => {
     dispatch(setSelectedDate(date));
+    setMood(null); // Clear local state immediately for better UX
+    setContent('');
     setLoaded(false);
   }, [dispatch]);
 
@@ -87,16 +91,18 @@ export default function JournalScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 20}
-      >
-        <ScrollView 
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 20}
         >
+          <ScrollView 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+          >
           {/* Header */}
           <View style={styles.header}>
             <View>
@@ -113,6 +119,7 @@ export default function JournalScreen() {
             selectedDate={selectedDate}
             onDateSelect={handleDateSelect}
             entryDates={entryDates}
+            loading={loading}
           />
 
           {/* Mood */}
@@ -125,6 +132,7 @@ export default function JournalScreen() {
             content={content}
             onContentChange={setContent}
             placeholder={isToday ? "How's your day going?" : `What happened on ${formattedDate}?`}
+            loading={loading}
           />
 
           {/* Save Button */}
@@ -156,6 +164,7 @@ export default function JournalScreen() {
           <View style={{ height: 40 }} />
         </ScrollView>
       </KeyboardAvoidingView>
+     </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }
@@ -222,5 +231,17 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  loaderContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 250,
+  },
+  loaderText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: colors.textMuted,
+    fontWeight: '600',
   },
 });

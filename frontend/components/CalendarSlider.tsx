@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -12,6 +12,7 @@ interface CalendarSliderProps {
   selectedDate: string;
   onDateSelect: (date: string) => void;
   entryDates?: string[];
+  loading?: boolean;
 }
 
 function getDays(count: number): { date: string; dayName: string; dayNum: number; month: string; year: string }[] {
@@ -32,7 +33,7 @@ function getDays(count: number): { date: string; dayName: string; dayNum: number
   return days;
 }
 
-export default function CalendarSlider({ selectedDate, onDateSelect, entryDates = [] }: CalendarSliderProps) {
+export default function CalendarSlider({ selectedDate, onDateSelect, entryDates = [], loading = false }: CalendarSliderProps) {
   const scrollRef = useRef<ScrollView>(null);
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -90,13 +91,20 @@ export default function CalendarSlider({ selectedDate, onDateSelect, entryDates 
               ]}
               onPress={() => onDateSelect(day.date)}
               activeOpacity={0.8}
+              disabled={loading && isSelected}
             >
               <Text style={[styles.dayName, isSelected && styles.dayNameSelected]}>
                 {day.dayName}
               </Text>
-              <Text style={[styles.dayNum, isSelected && styles.dayNumSelected]}>
-                {day.dayNum}
-              </Text>
+              
+              {loading && isSelected ? (
+                <ActivityIndicator size="small" color="#FFFFFF" style={{ marginVertical: 4.5 }} />
+              ) : (
+                <Text style={[styles.dayNum, isSelected && styles.dayNumSelected]}>
+                  {day.dayNum}
+                </Text>
+              )}
+
               <View style={styles.footer}>
                 {hasEntry ? (
                   <View style={[styles.dot, isSelected && styles.dotSelected]} />

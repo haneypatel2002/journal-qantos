@@ -201,7 +201,7 @@ export default function ProfileScreen() {
         )}
 
         {/* Premium */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.premiumCard}
           onPress={() => setShowSubscription(true)}
           activeOpacity={0.8}
@@ -214,7 +214,7 @@ export default function ProfileScreen() {
             <Text style={styles.premiumDesc}>Unlock AI insights, unlimited challenges & more</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={colors.primary} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Logout */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
